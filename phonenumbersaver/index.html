@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phone Number Saver</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+        .container {
+            max-width: 600px;
+            margin: 2rem auto;
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .btn {
+            display: inline-block;
+            background-color: #4CAF50;
+            color: white;
+            padding: 0.5rem 1rem;
+            text-align: center;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background-color: #45a049;
+        }
+        .link {
+            display: block;
+            margin-top: 1rem;
+            text-align: center;
+            color: #4CAF50;
+            text-decoration: none;
+        }
+        .link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Phone Number Saver</h1>
+    </header>
+    <div class="container">
+        <h2>Login</h2>
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="loginEmail">Email:</label>
+                <input type="email" id="loginEmail" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="loginPassword">Password:</label>
+                <input type="password" id="loginPassword" name="password" required>
+            </div>
+            <button type="submit" class="btn">Login</button>
+        </form>
+        <a href="#" class="link" onclick="showRegistration()">Don't have an account? Register</a>
+        <a href="#" class="link" onclick="showForgotPassword()">Forgot Password?</a>
+    </div>
+
+    <div class="container" id="registrationContainer" style="display: none;">
+        <h2>Register</h2>
+        <form id="registrationForm">
+            <div class="form-group">
+                <label for="registerName">Name:</label>
+                <input type="text" id="registerName" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="registerEmail">Email:</label>
+                <input type="email" id="registerEmail" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="registerPassword">Password:</label>
+                <input type="password" id="registerPassword" name="password" required>
+            </div>
+            <div class="form-group">
+                <label for="registerSecurityMessage">Security Message: <span style="font-size: 0.9em; color: gray;">(Don't forget security message)</span></label>
+                <input type="text" id="registerSecurityMessage" name="securityMessage" required>
+            </div>
+            <button type="submit" class="btn">Register</button>
+        </form>
+        <a href="#" class="link" onclick="showLogin()">Already have an account? Login</a>
+    </div>
+
+    <div class="container" id="forgotPasswordContainer" style="display: none;">
+        <h2>Forgot Password</h2>
+        <form id="forgotPasswordForm">
+            <div class="form-group">
+                <label for="forgotEmail">Email:</label>
+                <input type="email" id="forgotEmail" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="forgotSecurityMessage">Security Message:</label>
+                <input type="text" id="forgotSecurityMessage" name="securityMessage" required>
+            </div>
+            <button type="submit" class="btn">Reset Password</button>
+        </form>
+        <a href="#" class="link" onclick="showLogin()">Back to Login</a>
+    </div>
+
+    <div class="container" id="resetPasswordContainer" style="display: none;">
+        <h2>Reset Password</h2>
+        <form id="resetPasswordForm">
+            <div class="form-group">
+                <label for="resetEmail">Email:</label>
+                <input type="email" id="resetEmail" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="resetCode">Reset Code:</label>
+                <input type="text" id="resetCode" name="resetCode" required>
+            </div>
+            <div class="form-group">
+                <label for="newPassword">New Password:</label>
+                <input type="password" id="newPassword" name="newPassword" required>
+            </div>
+            <button type="submit" class="btn">Update Password</button>
+        </form>
+        <a href="#" class="link" onclick="showLogin()">Back to Login</a>
+    </div>
+
+    <div class="container" id="phoneNumberContainer" style="display: none;">
+        <h2>Save Contacts</h2>
+        <form id="phoneNumberForm">
+            <div class="form-group">
+                <label for="contactName">Name:</label>
+                <input type="text" id="contactName" name="contactName" required>
+            </div>
+            <div class="form-group">
+                <label for="phoneNumber">Phone Number:</label>
+                <input type="text" id="phoneNumber" name="phoneNumber" required>
+            </div>
+            <button type="submit" class="btn">Save</button>
+        </form>
+        <h3>Saved Contacts:</h3>
+        <ul id="phoneNumberList"></ul>
+        <button class="btn" onclick="logout()">Logout</button>
+    </div>
+
+    <script>
+        // Load users and contacts from localStorage
+        const users = JSON.parse(localStorage.getItem('users')) || {};
+        const contacts = JSON.parse(localStorage.getItem('contacts')) || {};
+
+        function saveToLocalStorage() {
+            localStorage.setItem('users', JSON.stringify(users));
+            localStorage.setItem('contacts', JSON.stringify(contacts));
+        }
+
+        function showLogin() {
+            document.getElementById('registrationContainer').style.display = 'none';
+            document.getElementById('forgotPasswordContainer').style.display = 'none';
+            document.getElementById('phoneNumberContainer').style.display = 'none';
+            document.querySelector('.container').style.display = 'block';
+        }
+
+        function showRegistration() {
+            document.querySelector('.container').style.display = 'none';
+            document.getElementById('forgotPasswordContainer').style.display = 'none';
+            document.getElementById('phoneNumberContainer').style.display = 'none';
+            document.getElementById('registrationContainer').style.display = 'block';
+        }
+
+        function showForgotPassword() {
+            document.querySelector('.container').style.display = 'none';
+            document.getElementById('registrationContainer').style.display = 'none';
+            document.getElementById('phoneNumberContainer').style.display = 'none';
+            document.getElementById('forgotPasswordContainer').style.display = 'block';
+        }
+
+        // Handle registration form submission
+        document.getElementById('registrationForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent form from submitting normally
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const securityMessage = document.getElementById('registerSecurityMessage').value;
+
+            if (!users[email]) {
+                users[email] = { name, password, securityMessage };
+                saveToLocalStorage(); // Save to localStorage
+                alert('Registration successful! You can now log in.');
+                showLogin(); // Redirect to the login form
+            } else {
+                alert('This email is already registered. Please use a different email.');
+            }
+        });
+
+        // Handle login form submission
+        document.getElementById('loginForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent form from submitting normally
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            if (users[email] && users[email].password === password) {
+                localStorage.setItem('currentUser', email); // Save current user
+                alert(`Welcome, ${users[email].name}!`);
+                showPhoneNumberContainer(); // Show the phone number management section
+            } else {
+                alert('Invalid email or password. Please try again.');
+            }
+        });
+
+        // Handle forgot password form submission
+        document.getElementById('forgotPasswordForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent form from submitting normally
+            const email = document.getElementById('forgotEmail').value;
+            const securityMessage = document.getElementById('forgotSecurityMessage').value;
+
+            if (users[email]) {
+                if (users[email].securityMessage === securityMessage) {
+                    const resetCode = Math.floor(100000 + Math.random() * 900000); // Generate a 6-digit code
+                    users[email].resetCode = resetCode; // Store the reset code for the user
+                    saveToLocalStorage(); // Save reset code to localStorage
+                    alert(`A password reset code has been sent to ${email}. Your reset code is: ${resetCode}`);
+                    showResetPassword(); // Redirect to the reset password form
+                } else {
+                    alert('Incorrect security message. Please try again.');
+                }
+            } else {
+                alert('This email is not registered.');
+            }
+        });
+
+        // Handle reset password form submission
+        document.getElementById('resetPasswordForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent form from submitting normally
+            const email = document.getElementById('resetEmail').value;
+            const resetCode = document.getElementById('resetCode').value;
+            const newPassword = document.getElementById('newPassword').value;
+
+            if (users[email] && users[email].resetCode === parseInt(resetCode)) {
+                users[email].password = newPassword; // Update the password
+                delete users[email].resetCode; // Remove the reset code
+                saveToLocalStorage(); // Save updated password
+                alert('Password updated successfully! You can now log in.');
+                showLogin(); // Redirect to the login form
+            } else {
+                alert('Invalid email or reset code. Please try again.');
+            }
+        });
+
+        // Handle phone number form submission
+        document.getElementById('phoneNumberForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent form from submitting normally
+            const contactName = document.getElementById('contactName').value;
+            const phoneNumber = document.getElementById('phoneNumber').value;
+            const currentUser = localStorage.getItem('currentUser');
+
+            if (currentUser) {
+                if (!contacts[currentUser]) contacts[currentUser] = [];
+                contacts[currentUser].push({ contactName, phoneNumber });
+                saveToLocalStorage(); // Save contacts to localStorage
+
+                const phoneNumberList = document.getElementById('phoneNumberList');
+                const listItem = document.createElement('li');
+                listItem.textContent = `${contactName}: ${phoneNumber}`;
+
+                // Add a "Copy" button
+                const copyButton = document.createElement('button');
+                copyButton.textContent = 'Copy';
+                copyButton.className = 'btn';
+                copyButton.style.marginLeft = '10px';
+                copyButton.onclick = function () {
+                    navigator.clipboard.writeText(phoneNumber).then(() => {
+                        alert('Phone number copied to clipboard!');
+                    }).catch(err => {
+                        alert('Failed to copy phone number.');
+                    });
+                };
+
+                // Add a "Remove" button
+                const removeButton = document.createElement('button');
+                removeButton.textContent = 'Remove';
+                removeButton.className = 'btn';
+                removeButton.style.marginLeft = '10px';
+                removeButton.onclick = function () {
+                    phoneNumberList.removeChild(listItem); // Remove the contact
+                };
+
+                listItem.appendChild(copyButton);
+                listItem.appendChild(removeButton);
+                phoneNumberList.appendChild(listItem);
+
+                // Clear input fields
+                document.getElementById('contactName').value = '';
+                document.getElementById('phoneNumber').value = '';
+            }
+        });
+
+        // Show the phone number management section
+        function showPhoneNumberContainer() {
+            const currentUser = localStorage.getItem('currentUser');
+            if (currentUser && contacts[currentUser]) {
+                const phoneNumberList = document.getElementById('phoneNumberList');
+                phoneNumberList.innerHTML = ''; // Clear existing list
+                contacts[currentUser].forEach(contact => {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = `${contact.contactName}: ${contact.phoneNumber}`;
+
+                    // Add a "Copy" button
+                    const copyButton = document.createElement('button');
+                    copyButton.textContent = 'Copy';
+                    copyButton.className = 'btn';
+                    copyButton.style.marginLeft = '10px';
+                    copyButton.onclick = function () {
+                        navigator.clipboard.writeText(contact.phoneNumber).then(() => {
+                            alert('Phone number copied to clipboard!');
+                        }).catch(err => {
+                            alert('Failed to copy phone number.');
+                        });
+                    };
+
+                    // Add a "Remove" button
+                    const removeButton = document.createElement('button');
+                    removeButton.textContent = 'Remove';
+                    removeButton.className = 'btn';
+                    removeButton.style.marginLeft = '10px';
+                    removeButton.onclick = function () {
+                        phoneNumberList.removeChild(listItem); // Remove the contact
+                    };
+
+                    listItem.appendChild(copyButton);
+                    listItem.appendChild(removeButton);
+                    phoneNumberList.appendChild(listItem);
+                });
+            }
+            document.querySelector('.container').style.display = 'none';
+            document.getElementById('registrationContainer').style.display = 'none';
+            document.getElementById('forgotPasswordContainer').style.display = 'none';
+            document.getElementById('phoneNumberContainer').style.display = 'block';
+        }
+
+        // Show the reset password section
+        function showResetPassword() {
+            document.querySelector('.container').style.display = 'none';
+            document.getElementById('registrationContainer').style.display = 'none';
+            document.getElementById('forgotPasswordContainer').style.display = 'none';
+            document.getElementById('phoneNumberContainer').style.display = 'none';
+            document.getElementById('resetPasswordContainer').style.display = 'block';
+        }
+
+        // Logout function
+        function logout() {
+            localStorage.removeItem('currentUser'); // Clear current user
+            alert('You have been logged out.');
+            showLogin(); // Redirect to the login form
+        }
+    </script>
+</body>
+</html>
